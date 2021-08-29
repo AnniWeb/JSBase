@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Основы JS. Каталог</title>
+    <script>
+        var basketItems = [];
+        var catalogItems = [];
+
+        function fillTestBasketProducts()
+        {
+            for (let i = 0; i < 10; i++) {
+                let q = Math.round(Math.random() * 10);
+                basketItems.push({
+                    name: 'Item ' + i,
+                    price: Math.round(Math.random() * 10000)/100,
+                    quantity: 1
+                });
+            }
+        }
+
+        function fillTestProducts()
+        {
+            for (let i = 0; i < 10; i++) {
+                catalogItems.push({
+                    id: i + 1,
+                    name: 'Item ' + i,
+                    price: Math.round(Math.random() * 10000)/100,
+                    quantity: Math.round(Math.random() * 10)
+                });
+            }
+        }
+
+        function initBasket()
+        {
+            let container = document.getElementById('basket');
+            if (container){
+                refreshBasket(container, basketItems);
+            }
+        }
+
+        function initCatalog()
+        {
+            let container = document.getElementById('catalog');
+            if (container){
+                refreshCatalog(container, catalogItems);
+            }
+        }
+
+        function refreshBasket(container, products)
+        {
+            if (products.length > 0) {
+                let count = 0;
+                let sum = 0;
+                for (let product of products) 
+                {
+                    count += product.quantity;
+                    sum += product.quantity * product.price;
+                }
+                sum = Math.round(sum*100) / 100;
+                container.innerHTML = '<div class="message"><div class="full">В корзине: ' + count + ' товаров на сумму ' +  sum + ' рублей</div></div>';
+            } else {
+                container.innerHTML = '<div class="message"><div class="empty">Корзина пуста</div></div>';
+            }
+        }
+
+        function refreshCatalog(container, products)
+        {
+            if (products.length > 0) {
+                for (let product of products) 
+                {
+                    let blockProduct = createDiv('', 'product', 'p' + product.id);
+                    let blockImage = createDiv('', 'image');
+                    let blockDescription = createDiv(product.name, 'description');
+                    let blockPrice = createDiv(product.price + ' рублей', 'price');
+                    let blockToBasket = createDiv(
+                        product.quantity > 0 
+                            ? '<button type="button" class="addToBasket">В корзину</button>'
+                            : '<div class="not">Нет в наличии</div>'
+                        , 'toBasket'
+                    );
+                    blockProduct.appendChild(blockImage);
+                    blockProduct.appendChild(blockDescription);
+                    blockProduct.appendChild(blockPrice);
+                    blockProduct.appendChild(blockToBasket);
+                    container.appendChild(blockProduct);
+                }
+            } else {
+                container.innerHTML = '';
+            }
+        }
+
+        function createDiv(content = '', className = '', id = '')
+        {
+            let div = document.createElement("div");
+
+            if (content) {
+                div.innerHTML = content;
+            }
+
+            if (className) {
+                div.setAttribute('class', className);
+            }
+
+            if (id) {
+                div.id = id;
+            }
+
+            return div;
+        }
+
+        fillTestBasketProducts();
+        fillTestProducts();
+
+        function initPage() {
+            initBasket();
+            initCatalog();
+        }
+        
+        window.onload = initPage;
+    </script>
+
+    <style>
+        #catalog {
+            font-size: 10px;
+        }
+        #catalog .product {
+            display: inline-block;
+            padding: 5px 5px 15px;
+            width: 150px;
+            min-height: 150px;
+            box-sizing: border-box;
+            vertical-align: top;
+            margin: 5px;
+            text-align: center;
+        }
+        #catalog .product .image {
+            width: 50px;
+            height: 50px;
+            margin: 5px auto 10px;
+            border: 1px solid gray;
+        }
+        #catalog .product .price {
+            font-size: 14px;
+            color: darkblue;
+        }
+        #catalog .product .description {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        #catalog .product .toBasket {
+            margin: 10px auto;
+        }
+        #catalog .product .toBasket .not {
+            color: red;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div id="basket"></div>
+    <div id="catalog"></div>
+</body>
+</html>
