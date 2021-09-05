@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        const descLegend = {
+            v: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
+            h: [1, 2, 3, 4, 5, 6, 7, 8]
+        };
+        const figures = {
+            white: {
+                king: '&#9812',
+                queen: '&#9813',
+                rook: '&#9814',
+                bishop: '&#9815',
+                knight: '&#9816',
+                pawn: '&#9817',
+            },
+            black: {
+                king: '&#9818',
+                queen: '&#9819',
+                rook: '&#9820',
+                bishop: '&#9821',
+                knight: '&#9822',
+                pawn: '&#9823',
+            },
+        }
+        let positions = [
+            {isWhite: true, figure: 'rook', pos: ['A', 1]},
+            {isWhite: true, figure: 'knight', pos: ['B', 1]},
+            {isWhite: true, figure: 'bishop', pos: ['C', 1]},
+            {isWhite: true, figure: 'queen', pos: ['D', 1]},
+            {isWhite: true, figure: 'king', pos: ['E', 1]},
+            {isWhite: true, figure: 'bishop', pos: ['F', 1]},
+            {isWhite: true, figure: 'knight', pos: ['G', 1]},
+            {isWhite: true, figure: 'rook', pos: ['H', 1]},
+            {isWhite: true, figure: 'pawn', pos: ['A', 2]},
+            {isWhite: true, figure: 'pawn', pos: ['B', 2]},
+            {isWhite: true, figure: 'pawn', pos: ['C', 2]},
+            {isWhite: true, figure: 'pawn', pos: ['D', 2]},
+            {isWhite: true, figure: 'pawn', pos: ['E', 2]},
+            {isWhite: true, figure: 'pawn', pos: ['F', 2]},
+            {isWhite: true, figure: 'pawn', pos: ['G', 2]},
+            {isWhite: true, figure: 'pawn', pos: ['H', 2]},
+            {isWhite: false, figure: 'pawn', pos: ['A', 7]},
+            {isWhite: false, figure: 'pawn', pos: ['B', 7]},
+            {isWhite: false, figure: 'pawn', pos: ['C', 7]},
+            {isWhite: false, figure: 'pawn', pos: ['D', 7]},
+            {isWhite: false, figure: 'pawn', pos: ['E', 7]},
+            {isWhite: false, figure: 'pawn', pos: ['F', 7]},
+            {isWhite: false, figure: 'pawn', pos: ['G', 7]},
+            {isWhite: false, figure: 'pawn', pos: ['H', 7]},
+            {isWhite: false, figure: 'rook', pos: ['A', 8]},
+            {isWhite: false, figure: 'knight', pos: ['B', 8]},
+            {isWhite: false, figure: 'bishop', pos: ['C', 8]},
+            {isWhite: false, figure: 'queen', pos: ['D', 8]},
+            {isWhite: false, figure: 'king', pos: ['E', 8]},
+            {isWhite: false, figure: 'bishop', pos: ['F', 8]},
+            {isWhite: false, figure: 'knight', pos: ['G', 8]},
+            {isWhite: false, figure: 'rook', pos: ['H', 8]},
+        ];
+
+        function showChessDesc() {
+            let desc = document.getElementById("desc");
+            desc.innerHTML = "";
+            displayDesc(desc);
+            setFigures(desc);
+        }
+
+        function setFigures(desc) {
+            for (const figure of positions) {
+                let cell = document.getElementById(figure.pos[1] + figure.pos[0]);
+                cell.innerHTML = (figure.isWhite ? figures['white'][figure.figure] : figures['black'][figure.figure]) + ';';
+            }
+        }
+
+        function displayDesc(desc) {
+            desc.innerHTML = "";
+            let row = createRow(' legend');
+            row.appendChild(createCell());
+            for (const v of descLegend['v']) {
+                row.appendChild(createCell(v));
+            }
+            desc.appendChild(row);
+
+            for (const h of descLegend['h']) {
+                let row = createRow();
+                row.appendChild(createCell(h, ' legend'));
+                for (const v of descLegend['v']) {
+                    row.appendChild(createCell('&nbsp;', ' cellDesc', h + v));
+                }
+                desc.appendChild(row);
+            }
+        };
+
+        function createRow(className = '', id = '')
+        {
+            let row = document.createElement("div");
+            row.setAttribute('class', 'row' + className);
+
+            if (id) {
+                row.id = id;
+            }
+
+            return row;
+        }
+
+        function createCell(content = '&nbsp;', className = '', id = '')
+        {
+            let cell = document.createElement("div");
+            cell.setAttribute('class', 'cell' + className);
+            cell.innerHTML = content;
+            if (id) {
+                cell.id = id;
+            }
+
+            return cell;
+        }
+        
+        window.onload = showChessDesc;
+    </script>
+    <style>
+        #desc {    
+            font-weight: bold;
+        }
+        .cell {
+            display: inline-block;
+            padding: 5px;
+            text-align: center;
+            width: 35px;
+            height: 35px;
+            box-sizing: border-box;
+            vertical-align: top;
+        }
+        .cellDesc {
+            border: 1px solid black;
+        }
+        .row:nth-child(odd) .cellDesc:nth-child(odd), 
+        .row:nth-child(even) .cellDesc:nth-child(even) {
+            background-color: gray;
+        }
+        .legend {
+        }
+    </style>
+</head>
+<body>
+    <div id="desc"></div>
+</body>
+</html>
