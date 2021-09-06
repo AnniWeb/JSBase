@@ -23,12 +23,14 @@
 
         function fillTestProducts()
         {
-            for (let i = 0; i < 10; i++) {
+            for (let i = 1; i <= 10; i++) {
                 catalogItems.push({
-                    id: i + 1,
+                    id: i,
                     name: 'Item ' + i,
                     price: Math.round(Math.random() * 10000)/100,
-                    quantity: Math.round(Math.random() * 10)
+                    quantity: Math.round(Math.random() * 10),
+                    previewImage: 'https://via.placeholder.com/50x50.png?text=ProductItem+' + i,
+                    detailImage: 'https://via.placeholder.com/500x500.png?text=ProductItem+' + i
                 });
             }
         }
@@ -51,19 +53,62 @@
 
         function refreshBasket(container, products)
         {
+            container.innerHTML = '';
+            let blockMessage = createDiv('', 'message');
             if (products.length > 0) {
+                let blockBasket = createDiv('', 'basket');
                 let count = 0;
                 let sum = 0;
                 for (let product of products) 
                 {
                     count += product.quantity;
                     sum += product.quantity * product.price;
+
+                    let blockProduct = createDiv('', 'product');
+                    let blockDescription = createDiv(product.name, 'description');
+                    let blockPrice = createDiv(product.price + ' рублей', 'price');
+                    let blockQuantity = createDiv(product.quantity, 'quantity');
+
+                    blockProduct.appendChild(blockDescription);
+                    blockProduct.appendChild(blockPrice);
+                    blockProduct.appendChild(blockQuantity);
+                    blockBasket.appendChild(blockProduct);
                 }
-                sum = Math.round(sum*100) / 100;
-                container.innerHTML = '<div class="message"><div class="full">В корзине: ' + count + ' товаров на сумму ' +  sum + ' рублей</div></div>';
+                sum = Math.round(sum * 100) / 100;
+                blockMessage.innerHTML = '<div class="full">В корзине: ' + count + ' товаров на сумму ' +  sum + ' рублей</div>';
+                container.appendChild(blockMessage);
+                container.appendChild(blockBasket);
             } else {
-                container.innerHTML = '<div class="message"><div class="empty">Корзина пуста</div></div>';
+                blockMessage.innerHTML = '<div class="empty">Корзина пуста</div>';
+                container.appendChild(blockMessage);
             }
+        }
+
+        function showGallery(src = null)
+        {
+            let container = document.getElementById('gallery');
+            if (!container) {
+                return false;
+            }
+            container.style.display = 'block';
+
+            const image = new Image()
+            image.src = src
+            image.onload = function () {
+                let bigPhoto = createDiv('<img src="' + src + '" alt="" />', 'detail', 'bigGalleryPhoto');
+
+                if (catalogItems.length > 0) {
+                    let index = catalogItems.findIndex((product) => product.detailImage === src);
+                    index++;
+                    bigPhoto.onclick = (e) => catalogItems[index] ? showGallery(catalogItems[index].detailImage) : container.style.display = 'none';
+                }
+                container.appendChild(bigPhoto);
+            };
+            image.onerror = function () {
+                container.style.display = 'none';
+                return false;
+            };
+
         }
 
         function refreshCatalog(container, products)
@@ -71,13 +116,15 @@
             if (products.length > 0) {
                 for (let product of products) 
                 {
-                    let blockProduct = createDiv('', 'product', 'p' + product.id);
-                    let blockImage = createDiv('', 'image');
+                    let pid = 'p' + product.id;
+                    let blockProduct = createDiv('', 'product', pid);
+                    let blockImage = createDiv('<img src="' + product.previewImage + '" alt="" />', 'image');
+                    blockImage.onclick = (e) => showGallery(product.detailImage);
                     let blockDescription = createDiv(product.name, 'description');
                     let blockPrice = createDiv(product.price + ' рублей', 'price');
                     let blockToBasket = createDiv(
                         product.quantity > 0 
-                            ? '<button type="button" class="addToBasket">В корзину</button>'
+                            ? '<button type="button" class="addToBasket" onclick="addToBasket(' + product.id + ');">Купить</button>'
                             : '<div class="not">Нет в наличии</div>'
                         , 'toBasket'
                     );
@@ -111,7 +158,35 @@
             return div;
         }
 
-        fillTestBasketProducts();
+        function addToBasket(id) 
+        {
+            let product = catalogItems.find((el) => el.id === id);
+            let basketItemIndex = basketItems.findIndex((el) => el.id === id);
+            
+            if (product) {
+                let quantity = basketItemIndex !== -1 ? basketItems[basketItemIndex]['quantity'] + 1 : 1;
+                if (quantity <= product.quantity)
+                {
+                    if (basketItemIndex !== -1){
+                        basketItems[basketItemIndex]['quantity'] = quantity;
+                    } else {
+                        basketItems.push({
+                            id: product.id,
+                            name: product.name,
+                            price: product.price,
+                            quantity: quantity
+                        });
+                    }
+                    initBasket();
+                } else {
+                    alert('Превышен лимит');
+                }
+            } else {
+                alert('Недоступный товар');
+            }
+        }
+
+        // fillTestBasketProducts();
         fillTestProducts();
 
         function initPage() {
@@ -123,6 +198,31 @@
     </script>
 
     <style>
+        .modal {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 10000000000000;
+            padding-top: 100px;
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.5);
+        }
+        #gallery .detail {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            margin: auto;
+            text-align: center;
+            padding-top: 100px;
+        }
         #catalog {
             font-size: 10px;
         }
@@ -158,10 +258,53 @@
             color: red;
             font-size: 12px;
         }
+
+        #basket {
+            border: 1px solid gray;
+            padding: 5px;
+            width: 400px;
+        }
+
+        #basket .message {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        #basket .basket {
+            margin-top: 10px;
+            margin-bottom: -10px;
+        }
+
+        #basket .product {
+            margin: 5px -5px;
+        }
+
+        #basket .product:nth-child(odd) {
+            background-color: lightgray;
+        }
+
+        #basket .basket .product > * {
+            display: inline-block;
+            padding: 5px;
+            box-sizing: border-box;
+            vertical-align: top;
+        }
+        #basket .basket .description {
+            width: 250px;
+        }
+        #basket .basket .price {
+            width: 100px;
+            text-align: right;
+        }
+        #basket .basket .quantity {
+            width: 50px;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
     <div id="basket"></div>
     <div id="catalog"></div>
+    <div id="gallery" class="modal"></div>
 </body>
 </html>
